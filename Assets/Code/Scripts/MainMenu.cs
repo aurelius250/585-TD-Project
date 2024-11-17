@@ -34,6 +34,7 @@ public class MainMenu : MonoBehaviour
         SceneManager.LoadScene("AchievementsScene");  // Change this to the actual name of your achievements scene
     }
 
+
     void OpenSettings()
     {
         // This method can open a settings menu, or load a scene with settings options
