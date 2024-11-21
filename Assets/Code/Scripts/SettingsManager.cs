@@ -10,6 +10,7 @@ public class SettingsManager : MonoBehaviour
     public Toggle fullscreenToggle;
     public Dropdown difficultyDropdown;
     public Button applyButton;
+    public Button backButton;  // Reference for the Back button
 
     [Header("Settings")]
     public AudioMixer audioMixer;  // Reference to the AudioMixer (for volume control)
@@ -25,13 +26,14 @@ public class SettingsManager : MonoBehaviour
         // Initialize UI elements based on current settings
         volumeSlider.value = currentVolume;
         fullscreenToggle.isOn = isFullscreen;
-        difficultyDropdown.value = currentDifficulty;
+        // difficultyDropdown.value = currentDifficulty;
 
         // Add listeners to the UI elements
         volumeSlider.onValueChanged.AddListener(SetVolume);
         fullscreenToggle.onValueChanged.AddListener(ToggleFullscreen);
-        difficultyDropdown.onValueChanged.AddListener(SetDifficulty);
+        // difficultyDropdown.onValueChanged.AddListener(SetDifficulty);
         applyButton.onClick.AddListener(ApplySettings);
+        backButton.onClick.AddListener(GoBack); // Add listener for the Back button
     }
 
     void SetVolume(float volume)
@@ -61,9 +63,13 @@ public class SettingsManager : MonoBehaviour
         PlayerPrefs.Save();
         
         Debug.Log("Settings Applied!");
-        
-        // You can load a new scene or transition back to the main menu, if desired
-        // SceneManager.LoadScene("MainMenu");
+    }
+
+    void GoBack()
+    {
+        // Navigate to the previous scene (e.g., Main Menu)
+        Debug.Log("Back Button Clicked");
+        SceneManager.LoadScene("MainMenuScene");
     }
 
     void LoadSettings()
