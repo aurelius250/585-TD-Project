@@ -23,14 +23,14 @@ public class HUDManager : MonoBehaviour
 
     void UpdateTimerDisplay()
     {
-        timerText.text = "Time: " + Mathf.FloorToInt(gameTime).ToString();
+        timerText.text = "" + Mathf.FloorToInt(gameTime).ToString();
     }
 
     public void UpdateLives(int lives)
     {
         if (livesText != null)
         {
-            livesText.text = "Lives: " + lives.ToString();
+            livesText.text = "" + lives.ToString();
             
             if (lives <= 0)
             {
@@ -45,7 +45,7 @@ public class HUDManager : MonoBehaviour
 
     public void UpdateWave(int wave)
     {
-        waveText.text = "Wave: " + wave.ToString();
+        waveText.text = "" + wave.ToString();
     }
 
     private void GameOver()
