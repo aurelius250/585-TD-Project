@@ -16,6 +16,8 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private float timeBetweenWaves = 5f;
     [SerializeField] private float difficultyScalingFactor = 1.25f;
 
+
+
     [Header("Events")]
     public static UnityEvent onEnemyDestroy = new UnityEvent();
 
