@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; // For loading scenes
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
@@ -7,50 +7,80 @@ public class MainMenu : MonoBehaviour
     public Button startButton;
     public Button achievementsButton;
     public Button settingsButton;
-    public Button exitButton;  // Reference for Exit button
+    public Button exitButton;
+
+    public AudioClip buttonClickSound; // Assign the sound clip for button clicks in the Inspector
+    private AudioSource buttonAudioSource; // Separate AudioSource for button sounds
+    private AudioSource backgroundAudioSource; // Reference to the background music AudioSource
+
+    public float buttonSoundVolume = 1.0f; // Volume for button click sound (default to max)
+    public float backgroundVolume = 0.3f; // Volume for background music (lowered by default)
 
     void Start()
     {
+        // Find or assign the background music AudioSource
+        backgroundAudioSource = FindObjectOfType<AudioSource>(); // Assumes a background music AudioSource exists in the scene
+        if (backgroundAudioSource != null)
+        {
+            backgroundAudioSource.loop = true; // Ensure the background music loops
+            backgroundAudioSource.volume = backgroundVolume; // Set background music volume
+        }
+
+        // Create a separate AudioSource for button sounds
+        buttonAudioSource = gameObject.AddComponent<AudioSource>();
+        buttonAudioSource.playOnAwake = false; // Prevent sound from playing on awake
+        buttonAudioSource.clip = buttonClickSound;
+        buttonAudioSource.volume = buttonSoundVolume; // Set button sound volume
+
         // Adding listeners for button clicks
-        startButton.onClick.AddListener(StartGame);
-        achievementsButton.onClick.AddListener(ShowAchievements);
-        settingsButton.onClick.AddListener(OpenSettings);
-        exitButton.onClick.AddListener(ExitGame);  // Listener for Exit button
+        startButton.onClick.AddListener(() => HandleButtonClick(StartGame));
+        achievementsButton.onClick.AddListener(() => HandleButtonClick(ShowAchievements));
+        settingsButton.onClick.AddListener(() => HandleButtonClick(OpenSettings));
+        exitButton.onClick.AddListener(() => HandleButtonClick(ExitGame));
+    }
+
+    void HandleButtonClick(System.Action action)
+    {
+        if (buttonAudioSource != null && buttonClickSound != null)
+        {
+            buttonAudioSource.Play();
+            StartCoroutine(WaitForSoundAndExecute(action));
+        }
+        else
+        {
+            action.Invoke();
+        }
+    }
+
+    private System.Collections.IEnumerator WaitForSoundAndExecute(System.Action action)
+    {
+        yield return new WaitForSeconds(buttonAudioSource.clip.length / 2);
+        action.Invoke();
     }
 
     void StartGame()
     {
-        // Here we load the scene for starting the game (LevelSelect or Game scene)
         Debug.Log("Start Game button clicked");
-        SceneManager.LoadScene("LevelSelectScene");  // Change this to the actual name of your scene
+        SceneManager.LoadScene("LevelSelectScene"); // Change this to the actual name of your scene
     }
 
     void ShowAchievements()
     {
-        // Here you can implement logic to open an achievements menu, or load a scene for achievements
         Debug.Log("Achievements button clicked");
-
-        // Example: Load the achievements scene
-        SceneManager.LoadScene("AchievementsScene");  // Change this to the actual name of your achievements scene
+        SceneManager.LoadScene("AchievementsScene"); // Change this to the actual name of your achievements scene
     }
-
 
     void OpenSettings()
     {
-        // This method can open a settings menu, or load a scene with settings options
         Debug.Log("Settings button clicked");
-
-        // Example: Load the settings scene
-        SceneManager.LoadScene("SettingsScene");  // Change this to the actual name of your settings scene
+        SceneManager.LoadScene("SettingsScene"); // Change this to the actual name of your settings scene
     }
 
     void ExitGame()
     {
-        // Exit the game or stop the editor play mode
         Debug.Log("Exit button clicked");
         Application.Quit();
 
-        // If running in the Unity Editor, stop play mode
         #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
         #endif
