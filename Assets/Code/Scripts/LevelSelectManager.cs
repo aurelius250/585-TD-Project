@@ -1,3 +1,5 @@
+using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -64,25 +66,79 @@ public class LevelSelectManager : MonoBehaviour
     }
 
     private void SelectLevel(Button selectedButton, string levelName)
+{
+    // Reset all buttons to a definitive state
+    foreach (Button button in levelButtons)
     {
-        // Reset all buttons' colors to default
-        foreach (Button button in levelButtons)
+        // Create a completely new ColorBlock with explicit colors
+        ColorBlock resetColors = new ColorBlock
         {
-            ColorBlock colors = button.colors;
-            colors.normalColor = Color.white; // Default color
-            button.colors = colors;
+            normalColor = Color.white,
+            highlightedColor = Color.white,
+            pressedColor = Color.white,
+            selectedColor = Color.white,
+            disabledColor = Color.gray,
+            colorMultiplier = 1f // Reset color multiplier
+        };
+        
+        // Completely override the color block
+        button.colors = resetColors;
+
+        // Reset text color to black
+        TMP_Text buttonText = button.GetComponentInChildren<TMP_Text>();
+        if (buttonText != null)
+        {
+            buttonText.color = Color.black;
         }
 
-        // Highlight the selected button
-        ColorBlock selectedColors = selectedButton.colors;
-        selectedColors.normalColor = Color.green; // Highlight color
-        selectedButton.colors = selectedColors;
-
-        // Update the selected level
-        selectedLevel = levelName;
-        Debug.Log("Selected level: " + selectedLevel);
+        // Reset scale
+        StartCoroutine(ScaleButton(button.transform, Vector3.one, 0.2f));
     }
 
+    // Create a new ColorBlock for the selected button with explicit colors
+    ColorBlock selectedColors = new ColorBlock
+    {
+        normalColor = new Color(0.5f, 0.8f, 1f, 1f), // Soft blue highlight
+        highlightedColor = new Color(0.5f, 0.8f, 1f, 1f),
+        pressedColor = new Color(0.4f, 0.7f, 0.9f, 1f),
+        selectedColor = new Color(0.5f, 0.8f, 1f, 1f),
+        disabledColor = Color.gray,
+        colorMultiplier = 1f
+    };
+    
+    selectedButton.colors = selectedColors;
+
+    // Change text color to white for the selected button
+    TMP_Text selectedButtonText = selectedButton.GetComponentInChildren<TMP_Text>();
+    if (selectedButtonText != null)
+    {
+        selectedButtonText.color = Color.white;
+    }
+
+    // Scale up the selected button
+    StartCoroutine(ScaleButton(selectedButton.transform, Vector3.one * 1.2f, 0.2f));
+
+    // Update the selected level
+    selectedLevel = levelName;
+    Debug.Log("Selected level: " + selectedLevel);
+}
+
+// New method to handle smooth scaling of buttons
+private IEnumerator ScaleButton(Transform buttonTransform, Vector3 targetScale, float duration)
+{
+    Vector3 startScale = buttonTransform.localScale;
+    float elapsedTime = 0f;
+
+    while (elapsedTime < duration)
+    {
+        buttonTransform.localScale = Vector3.Lerp(startScale, targetScale, elapsedTime / duration);
+        elapsedTime += Time.deltaTime;
+        yield return null;
+    }
+
+    // Ensure we end exactly on the target scale
+    buttonTransform.localScale = targetScale;
+}
     private void LoadSelectedLevel()
     {
         if (!string.IsNullOrEmpty(selectedLevel))
