@@ -1,13 +1,17 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI; // Ensure this namespace is included
+using UnityEngine.UI;
 
 public class LevelSelectManager : MonoBehaviour
 {
     [Header("UI Buttons")]
     public Button[] levelButtons; // Array for the 8 level buttons
-    public Button startButton;    // Start button
-    public Button backButton;     // Back button
+    public Button startButton; // Start button
+    public Button backButton; // Back button
+
+    [Header("Audio")]
+    public AudioSource buttonSfxSource; // Button sound effect AudioSource
+    public AudioClip buttonClickSound; // Button click sound effect
 
     private string selectedLevel = null; // Store the selected level name
 
@@ -20,18 +24,43 @@ public class LevelSelectManager : MonoBehaviour
             return;
         }
 
+        // Setup button SFX source if not already configured
+        if (buttonSfxSource != null)
+        {
+            buttonSfxSource.clip = buttonClickSound;
+            buttonSfxSource.playOnAwake = false;
+        }
+
         // Add listeners to the level buttons
         foreach (Button button in levelButtons)
         {
             string levelName = button.name; // Use button name as the level name
-            button.onClick.AddListener(() => SelectLevel(button, levelName));
+            button.onClick.AddListener(() => HandleButtonClick(() => SelectLevel(button, levelName)));
         }
 
         // Add listener to the start button
-        startButton.onClick.AddListener(LoadSelectedLevel);
+        startButton.onClick.AddListener(() => HandleButtonClick(LoadSelectedLevel));
 
         // Add listener to the back button
-        backButton.onClick.AddListener(GoBack);
+        backButton.onClick.AddListener(() => HandleButtonClick(GoBack));
+    }
+
+    private void HandleButtonClick(System.Action action)
+    {
+        // Play button sound effect
+        if (buttonSfxSource != null && buttonClickSound != null)
+        {
+            buttonSfxSource.Play();
+        }
+
+        // Wait a short duration before executing the action
+        StartCoroutine(WaitAndExecute(action));
+    }
+
+    private System.Collections.IEnumerator WaitAndExecute(System.Action action)
+    {
+        yield return new WaitForSeconds(0.5f); // Small delay before action
+        action.Invoke();
     }
 
     private void SelectLevel(Button selectedButton, string levelName)
